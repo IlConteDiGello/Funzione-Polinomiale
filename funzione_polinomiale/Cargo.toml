@@ -1,0 +1,11 @@
+[package]
+name = "funzione_polinomiale"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+charming = "0.6.0"
+#plotly = "0.14"
+#egui = "0.34.1"
+#eframe = { version = "0.34.1", features = ["persistence"] }
+#egui_plot = "0.35.0"
