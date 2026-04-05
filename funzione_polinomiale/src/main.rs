@@ -1,6 +1,10 @@
 use std::io; //importazione modulo per l'input dell'utente
 use charming::{
-    Chart, HtmlRenderer, component::{Axis, Grid, Title}, element::{AreaStyle, AxisType, Label, LineStyle, MarkLine, MarkLineData, MarkLineVariant, Symbol, Tooltip}, series::Line
+    Chart, 
+    HtmlRenderer, 
+    component::{Axis, Grid, Title}, 
+    element::{AreaStyle, AxisType, Label, LineStyle, MarkLine, MarkLineData, MarkLineVariant, Symbol, Tooltip, Formatter, Trigger}, 
+    series::Line
     };
 
 fn main() {
@@ -12,6 +16,8 @@ fn main() {
     let x_minima: f64 = leggi_f64("Inserisci la x minima del grafico:");
     let x_massima: f64 = leggi_f64("Inserisci la x massima del grafico:");
     let mut punti: Vec<Vec<f64>> = Vec::new();
+    let epsilon: f64 = leggi_non_zero("Inserisci l'intervallo minimo per il metodo di bisezione");
+    let tolleranza: f64 = leggi_non_zero("Inserisci la tolleranza per la ricerca dello zero col metodo di bisezione");
 
     //debug
     println!("coefficiente a: {}", a);
@@ -22,28 +28,40 @@ fn main() {
     println!("x minima: {}", x_minima);
     println!("x massima: {}", x_massima);
 
-    //crea l'arrey di punti
+    //crea l'array di punti
     let mut x: f64 = x_minima;
     while x <= x_massima {
         punti.push(vec![x, calcola(a, b, c, d, x)]);
         x += step_di_calcolo;
     }
 
+    //bisezione
+    let zero: f64;
+    let mess: &str;
+    match cerca_metodo_bisezione(x_minima, x_massima, epsilon, tolleranza, a, b, c, d) {
+        Ok(zero)
+        Err(mess) => {
+            println!(mess);
+        }
+    }
+
     //imposta e crea il grafico
     let chart = Chart::new()
-        .title(Title::new().text("Funzione di terzo grado"))
+        .title(Title::new().text(format!("{}x³ + {}x² + {}x + {}", a, b, c, d))) //da cambiare, mettere funzione
         .grid(Grid::new())
         .x_axis(Axis::new().type_(AxisType::Value))
         .y_axis(
             Axis::new()
                 .type_(AxisType::Value)
         )
-        .tooltip(Tooltip::new())
+        .tooltip(
+            Tooltip::new()
+                .trigger(Trigger::Axis)
+        )
         .series(
             Line::new()
                 .smooth(true)
                 .symbol(Symbol::None)
-                .line_style(LineStyle::new().width(5).color("#5470C6"))
                 .data(punti),
         );
 
@@ -58,6 +76,23 @@ fn main() {
 //funzioni
 fn calcola(a: f64, b: f64, c: f64, d: f64, x: f64) -> f64 {
     return a*x*x*x + b*x*x + c*x + d;
+}
+
+fn cerca_metodo_bisezione(k: f64, j: f64, epsilon: f64, tolleranza: f64, a:f64, b:f64, c:f64, d:f64) -> Result<f64, &str> {
+    if (!(calcola(a, b, c, d, k) *  calcola(a, b, c, d, j)< 0)) { //f(a) * f(b) < 0
+        return Err("Non è possibile applicare il metodo di bisezione");
+    }
+    appross = calcola(a, b, c, d, (k - j)/2);
+    while (k - j > epsilon && appross < tolleranza) {
+        if (calcola(a, b, c, d, k) *  calcola(a, b, c, d, (k+j)/2)< 0) {
+            j = (k+j)/2;
+        }
+        else {
+            k = (k+j)/2;
+        }
+        appross = calcola(a, b, c, d, (k - j)/2);
+    }
+    return Ok(appross);
 }
     
 fn leggi_f64_non_zero(s: &str) -> f64 {

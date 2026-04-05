@@ -265,6 +265,7 @@ version = "0.1.0"
 dependencies = [
  "charming",
  "open",
+ "serde_json",
 ]
 
 [[package]]
