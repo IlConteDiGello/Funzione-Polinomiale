@@ -75,7 +75,7 @@ fn main() {
 
 //funzioni
 fn calcola(a: f64, b: f64, c: f64, d: f64, x: f64) -> f64 {
-    return a*x*x*x + b*x*x + c*x + d;
+    return a*x.powi(3) +  b*x.powi(2) + c*x + d;
 }
 
 fn cerca_metodo_bisezione(mut k: f64, mut j: f64, epsilon: f64, tolleranza: f64, a:f64, b:f64, c:f64, d:f64) -> Result<f64, String> {
@@ -83,7 +83,7 @@ fn cerca_metodo_bisezione(mut k: f64, mut j: f64, epsilon: f64, tolleranza: f64,
         return Err("Non è possibile applicare il metodo di bisezione".to_string());
     }
     let mut appross = calcola(a, b, c, d, (k + j)/2.0);
-    while (k - j).abs() > epsilon && appross < tolleranza {
+    while (k - j).abs() > epsilon && appross.abs() > tolleranza {
         if calcola(a, b, c, d, k) * calcola(a, b, c, d, (k+j)/2.0)< 0.0 {
             j = (k+j)/2.0;
         }
@@ -114,7 +114,7 @@ fn leggi_f64_non_zero(s: &str) -> f64 {
             },
             Err(e) => {
                 println!("Errore, riprova: {}", e);
-                stringa_input = " ".to_string();
+                stringa_input.clear();
             },
         }        
         
@@ -135,7 +135,7 @@ fn leggi_f64(s: &str) -> f64 {
             },
             Err(e) => {
                 println!("Errore, riprova: {}", e);
-                stringa_input = " ".to_string();
+                stringa_input.clear();
             },
         }               
     }
