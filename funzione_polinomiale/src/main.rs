@@ -16,8 +16,8 @@ fn main() {
     let x_minima: f64 = leggi_f64("Inserisci la x minima del grafico:");
     let x_massima: f64 = leggi_f64("Inserisci la x massima del grafico:");
     let mut punti: Vec<Vec<f64>> = Vec::new();
-    let epsilon: f64 = leggi_non_zero("Inserisci l'intervallo minimo per il metodo di bisezione");
-    let tolleranza: f64 = leggi_non_zero("Inserisci la tolleranza per la ricerca dello zero col metodo di bisezione");
+    let epsilon: f64 = leggi_f64_non_zero("Inserisci l'intervallo minimo per il metodo di bisezione");
+    let tolleranza: f64 = leggi_f64_non_zero("Inserisci la tolleranza per la ricerca dello zero col metodo di bisezione");
 
     //debug
     println!("coefficiente a: {}", a);
@@ -36,12 +36,12 @@ fn main() {
     }
 
     //bisezione
-    let zero: f64;
-    let mess: &str;
     match cerca_metodo_bisezione(x_minima, x_massima, epsilon, tolleranza, a, b, c, d) {
-        Ok(zero)
+        Ok(zero) => {
+            println!("Lo zero della funzione si trova in x = {}", zero);
+        }
         Err(mess) => {
-            println!(mess);
+            println!("{}", mess);
         }
     }
 
@@ -67,7 +67,7 @@ fn main() {
 
     let mut renderer = HtmlRenderer::new("My-Chart", 1800, 950);
     renderer.save(&chart, "/tmp/chart.html").unwrap();
-    open::that("/tmp/chart.html");
+    open::that("/tmp/chart.html").unwrap();
     
 } 
 
@@ -78,21 +78,21 @@ fn calcola(a: f64, b: f64, c: f64, d: f64, x: f64) -> f64 {
     return a*x*x*x + b*x*x + c*x + d;
 }
 
-fn cerca_metodo_bisezione(k: f64, j: f64, epsilon: f64, tolleranza: f64, a:f64, b:f64, c:f64, d:f64) -> Result<f64, &str> {
-    if (!(calcola(a, b, c, d, k) *  calcola(a, b, c, d, j)< 0)) { //f(a) * f(b) < 0
-        return Err("Non è possibile applicare il metodo di bisezione");
+fn cerca_metodo_bisezione(mut k: f64, mut j: f64, epsilon: f64, tolleranza: f64, a:f64, b:f64, c:f64, d:f64) -> Result<f64, String> {
+    if !(calcola(a, b, c, d, k) *  calcola(a, b, c, d, j)< 0.0) { //f(a) * f(b) < 0
+        return Err("Non è possibile applicare il metodo di bisezione".to_string());
     }
-    appross = calcola(a, b, c, d, (k - j)/2);
-    while (k - j > epsilon && appross < tolleranza) {
-        if (calcola(a, b, c, d, k) *  calcola(a, b, c, d, (k+j)/2)< 0) {
-            j = (k+j)/2;
+    let mut appross = calcola(a, b, c, d, (k + j)/2.0);
+    while (k - j).abs() > epsilon && appross < tolleranza {
+        if calcola(a, b, c, d, k) * calcola(a, b, c, d, (k+j)/2.0)< 0.0 {
+            j = (k+j)/2.0;
         }
         else {
-            k = (k+j)/2;
-        }
-        appross = calcola(a, b, c, d, (k - j)/2);
+            k = (k+j)/2.0;
+        } 
+        appross = calcola(a, b, c, d, (k + j)/2.0);
     }
-    return Ok(appross);
+    return Ok((k+j)/2.0);
 }
     
 fn leggi_f64_non_zero(s: &str) -> f64 {
